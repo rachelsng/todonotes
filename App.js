@@ -1,59 +1,30 @@
 import { NavigationContainer } from "@react-navigation/native";
-import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { useState, useEffect } from "react"; 
-import { Pressable, StyleSheet, Text, View } from "react-native";
 import { createStackNavigator, HeaderTitle } from "@react-navigation/stack";
-import { Entypo } from "@expo/vector-icons";
+import AddScreen from "./screens/AddScreen";
+import NotesStack from "./screens/NotesStack";
+// import { StatusBar } from "expo-status-bar";
+// import { useState, useEffect } from "react";
+// import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+// import { Entypo } from "@expo/vector-icons";
+// import NotesScreen from "./screens/NotesScreen";
 
-function NotesScreen({ navigation }) {
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => <Pressable onPress={addNote} style = {styles.headerIcon}>
-        <Entypo name = "new-message" size = {24} color = "black" style = {{marginRight: 20}}/>
-        </Pressable>
-    });
-  });
-  function addNote() {
-    console.log("Add Note");
-  }
-  return <View style={styles.container}></View>;
-}
+
+
 
 const Stack = createStackNavigator();
 
 export default function App() {
-
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{ presentation: "modal" }}>
         <Stack.Screen
-          name="Notes"
-          component={NotesScreen}
-          options={{
-            headerTitle: "Notes App",
-            headerTitleStyle: {
-              fontWeight: "bold",
-              fontSize: 30,
-            },
-            headerStyle: {
-              height: 120,
-              backgroundColor: "yellow",
-              borderBottomColor: "#ccc",
-              borderBottomWidth: 1,
-            },
-          }}
+          name="Notes Stack"
+          component={NotesStack}
+          options={{ headerShown: false, headerMode: false }}
         />
+        <Stack.Screen name="Add Note" component={AddScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#ffc",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
