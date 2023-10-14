@@ -35,4 +35,14 @@ export const styles = StyleSheet.create({
   cancelButton: {
     backgroundColor: "red",
   },
+  // selectedText: {
+  //   color: 'blue',
+  //   textAlign: "left", 
+  //   fontSize: 16 
+  // },
+  normalText: {
+    color: 'black',
+    textAlign: "left", 
+    fontSize: 16 
+  }
 });

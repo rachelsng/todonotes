@@ -15,12 +15,12 @@ export default function NotesScreen({ navigation, route }) {
 
   function refreshNotes() {
     db.transaction((tx) => {
-        tx.executeSql(
-            "SELECT * from notes",
-            null,
-            (_, { rows: { _array } }) => setNotes(_array),
-            (_, error) => console.log("Error: ", error)
-        )
+      tx.executeSql(
+        "SELECT * from notes where done = false",
+        null,
+        (_, { rows: { _array } }) => setNotes(_array),
+        (_, error) => console.log("Error: ", error)
+      );
     });
   }
 
@@ -60,6 +60,33 @@ export default function NotesScreen({ navigation, route }) {
     navigation.navigate("Add Note");
   }
 
+  const [selectedItems, setSelectedItems] = useState(new Set());
+
+  const toggleItemSelection = (itemId) => {
+    const updatedSelection = new Set(selectedItems);
+    
+    if (selectedItems.has(itemId)) {
+      updatedSelection.delete(itemId);
+    } else {
+      updatedSelection.add(itemId);
+    }
+
+    setSelectedItems(updatedSelection);
+  };
+
+  function deleteNote(itemId) {
+    db.transaction((tx) => {
+      tx.executeSql(
+        "DELETE FROM notes WHERE id = ?",
+        [itemId],
+        (_, { rows: { _array } }) => setNotes(_array),
+        (_, error) => console.log("Error: ", error)
+      );
+    },
+    null,
+    refreshNotes);
+  }
+
   function renderItem({ item }) {
     return (
       <View
@@ -69,22 +96,37 @@ export default function NotesScreen({ navigation, route }) {
           paddingBottom: 20,
           borderBottomColor: "#ccc",
           borderBottomWidth: 1,
+          justifyContent: 'space-between',
+          flexDirection: 'row',
+          backgroundColor: selectedItems.has(item.id) ? '#EBECF0': '#ffc'
         }}
       >
-        <Text style={{ textAlign: "left", fontSize: 16 }}>{item.title}</Text>
+        <Pressable 
+          onPress={() => toggleItemSelection(item.id)}>
+          <Text style={styles.normalText}>{item.title}</Text>
+        </Pressable>
+        <Pressable onPress={() => deleteNote(item.id)}>
+            <Entypo
+            name="archive"
+            size={16}
+            color="black"
+            style={{ marginRight: 20 }}
+          /></Pressable>
       </View>
     );
   }
 
   useEffect(() => {
     if (route.params?.text) {
-        db.transaction(
-            (tx) => {
-                tx.executeSql("INSERT INTO notes (done, title) VALUES (0, ?)", [route.params.text]);
-            },
-            null,
-            refreshNotes
-        )
+      db.transaction(
+        (tx) => {
+          tx.executeSql("INSERT INTO notes (done, title) VALUES (0, ?)", [
+            route.params.text,
+          ]);
+        },
+        null,
+        refreshNotes
+      );
     }
   }, [route.params?.text]);
 
